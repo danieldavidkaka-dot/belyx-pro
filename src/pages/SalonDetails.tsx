@@ -4,9 +4,10 @@ import { ServiceRow } from '../components/ServiceRow';
 interface SalonDetailsProps {
   onBack: () => void;
   onBook?: () => void; // <--- Nueva función para el botón "Book Now"
+  onServiceSelect?: () => void;
 }
 
-export const SalonDetails = ({ onBack, onBook }: SalonDetailsProps) => {
+export const SalonDetails = ({ onBack, onBook, onServiceSelect }: SalonDetailsProps) => {
   return (
     <div className="bg-white min-h-screen pb-24 font-sans relative">
       
@@ -63,13 +64,13 @@ export const SalonDetails = ({ onBack, onBook }: SalonDetailsProps) => {
         {/* Lista de Servicios */}
         <div>
             <h3 className="font-bold text-slate-900 mb-4 text-lg">Hair Treatments</h3>
-            <ServiceRow name="Haircut & Styling" duration="45 min" price="60" image="https://images.unsplash.com/photo-1562322140-8baeececf3df?auto=format&fit=crop&q=80&w=100" />
-            <ServiceRow name="Balayage Color" duration="120 min" price="150" image="https://images.unsplash.com/photo-1560869713-7d0a29430803?auto=format&fit=crop&q=80&w=100" />
-            <ServiceRow name="Keratin Treatment" duration="90 min" price="200" />
+            <ServiceRow onClick={onServiceSelect} name="Haircut & Styling" duration="45 min" price="60" image="https://images.unsplash.com/photo-1562322140-8baeececf3df?auto=format&fit=crop&q=80&w=100" />
+            <ServiceRow onClick={onServiceSelect} name="Balayage Color" duration="120 min" price="150" image="https://images.unsplash.com/photo-1560869713-7d0a29430803?auto=format&fit=crop&q=80&w=100" />
+            <ServiceRow onClick={onServiceSelect} name="Keratin Treatment" duration="90 min" price="200" />
             
             <h3 className="font-bold text-slate-900 mt-6 mb-4 text-lg">Nails</h3>
-            <ServiceRow name="Gel Manicure" duration="50 min" price="45" />
-            <ServiceRow name="Pedicure Spa" duration="60 min" price="55" />
+            <ServiceRow onClick={onServiceSelect} name="Gel Manicure" duration="50 min" price="45" />
+            <ServiceRow onClick={onServiceSelect} name="Pedicure Spa" duration="60 min" price="55" />
         </div>
       </div>
 

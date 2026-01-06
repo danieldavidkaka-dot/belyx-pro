@@ -5,11 +5,12 @@ interface ServiceRowProps {
   duration: string;
   price: string;
   image?: string;
+  onClick?: () => void;
 }
 
-export const ServiceRow = ({ name, duration, price, image }: ServiceRowProps) => {
+export const ServiceRow = ({ name, duration, price, image, onClick }: ServiceRowProps) => {
   return (
-    <div className="flex items-center gap-4 py-4 border-b border-slate-50 last:border-0 group cursor-pointer hover:bg-slate-50 transition-colors px-2 rounded-xl">
+    <div onClick={onClick} className="flex items-center gap-4 py-4 border-b border-slate-50 last:border-0 group cursor-pointer hover:bg-slate-50 transition-colors px-2 rounded-xl">
       {/* Icono o Imagen pequeña */}
       <div className="w-12 h-12 bg-slate-100 rounded-xl overflow-hidden shrink-0">
         {image ? (

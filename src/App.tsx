@@ -1,11 +1,19 @@
 import { useState } from 'react';
+
+// --- IMPORTACIONES DE PÁGINAS ---
+// Nota: Si usas "export const" en tus archivos viejos, usa { Llaves }.
+// Si usas "export default" (como en los nuevos que hicimos), usa Sin Llaves.
+
 import { Welcome } from './pages/Welcome';
 import { Home } from './pages/Home';
-import { SalonDetails } from './pages/SalonDetails';
 import { ConfirmBooking } from './pages/ConfirmBooking';
 
-// Definimos todas las pantallas posibles de la App
-type ScreenType = 'welcome' | 'home' | 'details' | 'confirm';
+// Estos dos los creamos con "export default", así que van SIN llaves:
+import { SalonDetails } from './pages/SalonDetails';
+import ServiceDetails from './pages/ServiceDetails';
+
+// Definimos los nombres de las pantallas
+type ScreenType = 'welcome' | 'home' | 'salonDetails' | 'serviceDetails' | 'confirm';
 
 function App() {
   const [currentScreen, setCurrentScreen] = useState<ScreenType>('welcome');
@@ -13,7 +21,7 @@ function App() {
   const renderScreen = () => {
     switch (currentScreen) {
       
-      // 1. PANTALLA DE BIENVENIDA
+      // 1. BIENVENIDA
       case 'welcome':
         return (
           <div onClick={() => setCurrentScreen('home')}>
@@ -21,42 +29,53 @@ function App() {
           </div>
         );
       
-      // 2. PANTALLA PRINCIPAL (HOME)
+      // 2. HOME (Lista de Salones)
       case 'home':
         return (
-            <Home 
-                onLogout={() => setCurrentScreen('welcome')}
-                // Al hacer clic en una tarjeta de salón, vamos a los detalles
-                onSalonSelect={() => setCurrentScreen('details')}
-                // (Opcional) Si en el futuro quieres que "At Home" lleve a otro lado, lo configuraríamos aquí
-            />
+          <Home 
+            onLogout={() => setCurrentScreen('welcome')}
+            onSalonSelect={() => setCurrentScreen('salonDetails')}
+          />
         );
       
       // 3. DETALLES DEL SALÓN
-      case 'details':
+      case 'salonDetails':
         return (
-            <SalonDetails 
-                onBack={() => setCurrentScreen('home')}
-                // NUEVO: Al dar clic en el botón negro "Book Now", vamos a Confirmar
-                onBook={() => setCurrentScreen('confirm')} 
-            />
+          <SalonDetails 
+            onBack={() => setCurrentScreen('home')}
+            // Si tiene un botón directo de reservar, va a confirmar
+            onBook={() => setCurrentScreen('confirm')}
+            // Si selecciona un servicio específico, va al detalle del servicio
+            onServiceSelect={() => setCurrentScreen('serviceDetails')} 
+          />
         );
 
-      // 4. CONFIRMAR RESERVA (La nueva pantalla)
+      // 4. DETALLES DEL SERVICIO (La nueva pantalla)
+      case 'serviceDetails':
+        return (
+          <ServiceDetails 
+            // Si regresa, vuelve al Salón
+            onBack={() => setCurrentScreen('salonDetails')}
+            // Si reserva, va a Confirmación
+            onBook={() => setCurrentScreen('confirm')}
+          />
+        );
+
+      // 5. CONFIRMAR RESERVA
       case 'confirm':
         return (
-            <ConfirmBooking 
-                // Si quieren editar, vuelven atrás (al detalle)
-                onBack={() => setCurrentScreen('details')}
-                // Acción final de confirmación
-                onConfirm={() => {
-                  alert('¡Reserva Confirmada con Éxito! 🎉\n(Aquí se procesaría el pago)');
-                  setCurrentScreen('home'); // Regresamos al inicio
-                }} 
-            />
+          <ConfirmBooking 
+            // Si quiere editar, vuelve al Servicio
+            onBack={() => setCurrentScreen('serviceDetails')}
+            // Al confirmar, termina el flujo y vuelve al Home
+            onConfirm={() => {
+              alert('¡Reserva Confirmada! 🎉');
+              setCurrentScreen('home');
+            }} 
+          />
         );
       
-      // Default (Por si acaso falla algo)
+      // Default (Seguridad)
       default:
         return <Welcome />;
     }
