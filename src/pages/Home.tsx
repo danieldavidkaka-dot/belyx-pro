@@ -5,14 +5,15 @@ import { BottomNav } from '../components/BottomNav';
 import { HeroCard } from '../components/HeroCard';
 import { ProMapCard } from '../components/ProMapCard';
 
-// 1. AQUÍ AGREGAMOS "onSalonSelect" A LA LISTA DE COSAS PERMITIDAS
+// 1. UPDATED INTERFACE: Added 'onNavigate'
 interface HomeProps {
   onLogout?: () => void;
   onSalonSelect?: () => void;
+  onNavigate: (screen: 'home' | 'bookings' | 'wallet' | 'profile') => void; // <--- KEY CHANGE
 }
 
-// 2. AQUÍ LO RECIBIMOS EN EL COMPONENTE
-export const Home = ({ onLogout, onSalonSelect }: HomeProps) => {
+// 2. RECEIVE THE FUNCTION
+export const Home = ({ onLogout, onSalonSelect, onNavigate }: HomeProps) => {
   const [activeTab, setActiveTab] = useState<'salon' | 'home'>('salon');
 
   return (
@@ -113,8 +114,8 @@ export const Home = ({ onLogout, onSalonSelect }: HomeProps) => {
                     <span className="text-xs text-slate-400">📍 Within 5km</span>
                 </div>
                 
-                {/* 3. AQUI CONECTAMOS EL CLIC: Al tocar la tarjeta, vamos al detalle */}
-                <div onClick={onSalonSelect} className="cursor-pointer active:scale-95 transition-transform">
+                {/* 3. AQUI CONECTAMOS EL CLIC */}
+                <div onClick={onSalonSelect} className="cursor-pointer active:scale-95 transition-transform mb-4">
                     <SalonCard name="Aura Salon & Spa" address="0.8 km • Open until 8pm" rating={4.9} tags={['Hair', 'Nails']} image="https://images.unsplash.com/photo-1521590832896-7ea867403dab?auto=format&fit=crop&q=80&w=200" />
                 </div>
                 
@@ -163,7 +164,11 @@ export const Home = ({ onLogout, onSalonSelect }: HomeProps) => {
         </div>
       )}
 
-      <BottomNav />
+      {/* 4. UPDATED BOTTOM NAV: Conected logic */}
+      <BottomNav 
+        activeTab="home" 
+        onNavigate={onNavigate} 
+      />
     </div>
   );
 };

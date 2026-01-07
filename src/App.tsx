@@ -1,6 +1,6 @@
 import { useState } from 'react';
 
-// --- 1. IMPORTACIONES DE TODAS LAS PÁGINAS ---
+// Importaciones
 import { Welcome } from './pages/Welcome';
 import { Home } from './pages/Home';
 import { ConfirmBooking } from './pages/ConfirmBooking';
@@ -11,151 +11,84 @@ import SelectProfessional from './pages/SelectProfessional';
 import ServiceAddress from './pages/ServiceAddress';
 import SelectPayment from './pages/SelectPayment';
 import TrackProfessional from './pages/TrackProfessional';
-import ServiceVerification from './pages/ServiceVerification'; // <--- Nueva importación
+import ServiceVerification from './pages/ServiceVerification';
+import MyBookings from './pages/MyBookings';
 
-// --- 2. DEFINICIÓN DE TIPOS (Todas las pantallas posibles) ---
+// Definición de Tipos
 type ScreenType = 
-  | 'welcome' 
-  | 'home' 
-  | 'salonDetails' 
-  | 'serviceDetails' 
-  | 'selectPro' 
-  | 'serviceAddress' 
-  | 'selectPayment' 
-  | 'trackPro' 
-  | 'verification' // <--- Nuevo estado
-  | 'confirm' 
-  | 'staff';
+  | 'welcome' | 'home' | 'salonDetails' | 'serviceDetails' | 'selectPro' 
+  | 'serviceAddress' | 'selectPayment' | 'trackPro' | 'verification' 
+  | 'confirm' | 'staff' | 'bookings';
 
 function App() {
   const [currentScreen, setCurrentScreen] = useState<ScreenType>('welcome');
 
+  // Función Central de Navegación del Menú Inferior
+  const handleBottomNav = (tab: 'home' | 'bookings' | 'wallet' | 'profile') => {
+     if (tab === 'home') setCurrentScreen('home');
+     if (tab === 'bookings') setCurrentScreen('bookings');
+     // if (tab === 'profile') setCurrentScreen('profile'); // Futuro
+     // if (tab === 'wallet') setCurrentScreen('wallet'); // Futuro
+  };
+
   const renderScreen = () => {
     switch (currentScreen) {
       
-      // --- FLUJO DE INICIO ---
-      case 'welcome':
-        return (
-          <Welcome 
-             onStart={() => setCurrentScreen('home')} 
-             onStaffLogin={() => setCurrentScreen('staff')}
-          />
-        );
-      
-      case 'staff':
-        return (
-          <StaffLogin 
-            onBack={() => setCurrentScreen('welcome')}
-            onLoginSuccess={() => setCurrentScreen('home')}
-          />
-        );
-
+      // --- 1. HOME (CORREGIDO) ---
       case 'home':
         return (
           <Home 
-            onLogout={() => setCurrentScreen('welcome')}
+            // AHORA SÍ: Logout lleva a Welcome
+            onLogout={() => setCurrentScreen('welcome')} 
             onSalonSelect={() => setCurrentScreen('salonDetails')}
+            // NUEVO: Conectamos la barra de abajo
+            onNavigate={handleBottomNav}
           />
         );
-      
-      // --- FLUJO DE RESERVA ---
-      case 'salonDetails':
+
+      // --- 2. MY BOOKINGS ---
+      case 'bookings':
         return (
-          <SalonDetails 
+          <MyBookings 
             onBack={() => setCurrentScreen('home')}
-            onBook={() => setCurrentScreen('selectPro')} // Atajo a reservar
-            onServiceSelect={() => setCurrentScreen('serviceDetails')} 
+            onNavigate={handleBottomNav}
           />
         );
 
-      case 'serviceDetails':
-        return (
-          <ServiceDetails 
-            onBack={() => setCurrentScreen('salonDetails')}
-            onBook={() => setCurrentScreen('selectPro')} // Paso 1: Elegir Pro
-            onServiceSelect={() => console.log("Servicio Info")} 
-          />
-        );
-
-      case 'selectPro':
-        return (
-          <SelectProfessional 
-            onBack={() => setCurrentScreen('serviceDetails')}
-            onSelect={(proId) => {
-              console.log("Pro seleccionado:", proId);
-              setCurrentScreen('serviceAddress'); // Paso 2: Elegir Dirección
-            }}
-          />
-        );
-
-      case 'serviceAddress':
-        return (
-          <ServiceAddress 
-            onBack={() => setCurrentScreen('selectPro')}
-            onConfirm={(addrId) => {
-              console.log("Dirección:", addrId);
-              setCurrentScreen('selectPayment'); // Paso 3: Pagar
-            }}
-          />
-        );
-
-      case 'selectPayment':
-        return (
-          <SelectPayment 
-            price={120.00}
-            onBack={() => setCurrentScreen('serviceAddress')}
-            onConfirm={() => {
-              console.log("Pago exitoso");
-              setCurrentScreen('trackPro'); // Paso 4: Tracking (Uber Style)
-            }}
-          />
-        );
-
-      // --- FLUJO DE SERVICIO ACTIVO ---
-      case 'trackPro':
-        return (
-          <TrackProfessional 
-             // 1. Si da atrás, vuelve al Home (correcto UX)
-             onBack={() => setCurrentScreen('home')} 
-             
-             // 2. Si llama, solo mostramos alerta (simulando teléfono)
-             onCall={() => alert("Llamando a Sarah Jenkins... 📞")}
-
-             // 3. NUEVO: Si presiona el botón "Simulate Arrival", va a Verificación
-             onArrival={() => setCurrentScreen('verification')}
-          />
-        );
-
-      case 'verification':
-        return (
-          <ServiceVerification 
-            onBack={() => setCurrentScreen('trackPro')} // Volver al mapa si fue error
-            onVerified={() => {
-              alert("¡Servicio Verificado y Comenzado! ✅");
-              setCurrentScreen('home'); // Cierre del ciclo
-            }}
-          />
-        );
-
-      // --- OTROS / FALLBACKS ---
-      case 'confirm':
-        return (
-          <ConfirmBooking 
-            onBack={() => setCurrentScreen('selectPayment')}
-            onConfirm={() => setCurrentScreen('home')} 
-          />
-        );
+      // --- 3. FLUJO DE RESERVA ---
+      case 'salonDetails':
+        return <SalonDetails onBack={() => setCurrentScreen('home')} onBook={() => setCurrentScreen('selectPro')} onServiceSelect={() => setCurrentScreen('serviceDetails')} />;
       
-      default:
-        return <Welcome onStart={() => setCurrentScreen('home')} onStaffLogin={() => setCurrentScreen('staff')} />;
+      case 'serviceDetails':
+        return <ServiceDetails onBack={() => setCurrentScreen('salonDetails')} onBook={() => setCurrentScreen('selectPro')} onServiceSelect={() => {}} />;
+      
+      case 'selectPro':
+        return <SelectProfessional onBack={() => setCurrentScreen('serviceDetails')} onSelect={() => setCurrentScreen('serviceAddress')} />;
+      
+      case 'serviceAddress':
+        return <ServiceAddress onBack={() => setCurrentScreen('selectPro')} onConfirm={() => setCurrentScreen('selectPayment')} />;
+      
+      case 'selectPayment':
+        return <SelectPayment price={45} onBack={() => setCurrentScreen('serviceAddress')} onConfirm={() => setCurrentScreen('trackPro')} />;
+      
+      case 'trackPro':
+        return <TrackProfessional onBack={() => setCurrentScreen('home')} onCall={() => alert("Llamando...")} onArrival={() => setCurrentScreen('verification')} />;
+      
+      case 'verification':
+        return <ServiceVerification onBack={() => setCurrentScreen('trackPro')} onVerified={() => { alert("¡Servicio Finalizado!"); setCurrentScreen('bookings'); }} />;
+      
+      case 'confirm':
+        return <ConfirmBooking onBack={() => setCurrentScreen('selectPayment')} onConfirm={() => setCurrentScreen('home')} />;
+
+      // --- 4. LOGIN ---
+      case 'welcome': return <Welcome onStart={() => setCurrentScreen('home')} onStaffLogin={() => setCurrentScreen('staff')} />;
+      case 'staff': return <StaffLogin onBack={() => setCurrentScreen('welcome')} onLoginSuccess={() => setCurrentScreen('home')} />;
+      
+      default: return <Welcome onStart={() => setCurrentScreen('home')} onStaffLogin={() => setCurrentScreen('staff')} />;
     }
   };
 
-  return (
-    <>
-      {renderScreen()}
-    </>
-  );
+  return <>{renderScreen()}</>;
 }
 
 export default App;
