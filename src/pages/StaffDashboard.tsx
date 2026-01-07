@@ -1,11 +1,12 @@
 import React, { useState } from 'react';
+import { useNavigate } from 'react-router-dom'; // <--- 1. IMPORTAR EL HOOK
 import { 
   Bell, MoreHorizontal, MapPin, Navigation, Plus, 
-  Utensils, Users, Clock, ChevronRight, TrendingUp, LogOut // <--- 1. Importamos LogOut
+  Utensils, Users, Clock, ChevronRight, TrendingUp, LogOut, 
+  Shield // <--- 2. IMPORTAR ICONO SHIELD
 } from 'lucide-react';
 import { StaffBottomNav } from '../components/StaffBottomNav';
 
-// --- ESTRUCTURA DE DATOS ESCALABLE ---
 type EventType = 'appointment' | 'meeting' | 'break' | 'empty';
 
 interface ScheduleItem {
@@ -13,15 +14,13 @@ interface ScheduleItem {
   time: string;
   type: EventType;
   duration?: string;
-  // Solo para Appointments
   clientName?: string;
   serviceName?: string;
   clientImage?: string;
   locationType?: 'In-Salon' | 'Home Visit';
-  distance?: string; // Para Home Visit
+  distance?: string;
   status?: 'Confirmed' | 'Pending' | 'Completed';
   isVIP?: boolean;
-  // Solo para Meetings
   title?: string;
   subtitle?: string;
 }
@@ -77,17 +76,14 @@ interface StaffDashboardProps {
 
 export default function StaffDashboard({ onLogout, onNavigate }: StaffDashboardProps) {
   const [selectedDate, setSelectedDate] = useState(14); 
+  const navigate = useNavigate(); // <--- 3. INICIALIZAR EL HOOK
 
-  // Renderizador de Tarjetas Inteligente
   const renderCard = (item: ScheduleItem) => {
     switch (item.type) {
-      
-      // CASO 1: CITA (Appointment)
       case 'appointment':
         const isVIP = item.isVIP;
         return (
           <div 
-             // Conectamos el click para navegar al detalle
              onClick={() => item.locationType === 'Home Visit' && onNavigate('appointment-details')}
              className={`relative p-4 rounded-3xl transition-all cursor-pointer active:scale-[0.98] ${
              isVIP 
@@ -193,17 +189,23 @@ export default function StaffDashboard({ onLogout, onNavigate }: StaffDashboardP
                  </div>
              </div>
              
-             {/* --- 2. BOTONES DE ACCIÓN (AQUÍ ESTÁ EL LOGOUT) --- */}
+             {/* --- BOTONES DE ACCIÓN --- */}
              <div className="flex gap-2">
-                 {/* Botón Salir */}
+                 {/* 4. BOTÓN SOS AGREGADO AQUÍ */}
+                 <button 
+                    onClick={() => navigate('/staff-emergency')} 
+                    className="p-2 bg-red-50 hover:bg-red-100 text-red-500 rounded-full transition border border-red-100"
+                 >
+                     <Shield size={20} />
+                 </button>
+
                  <button 
                     onClick={onLogout} 
-                    className="p-2 bg-slate-50 hover:bg-red-50 text-slate-400 hover:text-red-500 rounded-full transition"
+                    className="p-2 bg-slate-50 hover:bg-slate-100 text-slate-400 hover:text-slate-600 rounded-full transition"
                  >
                      <LogOut size={20} />
                  </button>
 
-                 {/* Botón Notificaciones */}
                  <button className="relative p-2 bg-slate-50 hover:bg-slate-100 rounded-full transition">
                      <Bell size={20} className="text-slate-900" />
                      <span className="absolute top-2 right-2 w-2 h-2 bg-purple-600 rounded-full"></span>

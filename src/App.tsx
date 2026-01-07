@@ -1,29 +1,41 @@
 import { BrowserRouter, Routes, Route, useNavigate, Navigate } from 'react-router-dom';
 
-// --- IMPORTACIONES DE TODAS LAS PÁGINAS ---
+// =========================================
+// 1. IMPORTACIONES: ZONA PÚBLICA & AUTH
+// =========================================
 import { Welcome } from './pages/Welcome';
+import StaffLogin from './pages/StaffLogin';
+
+// =========================================
+// 2. IMPORTACIONES: ZONA CLIENTE (CONSUMIDOR)
+// =========================================
 import { Home } from './pages/Home';
-import { ConfirmBooking } from './pages/ConfirmBooking';
 import { SalonDetails } from './pages/SalonDetails';
 import ServiceDetails from './pages/ServiceDetails';
-import StaffLogin from './pages/StaffLogin';
 import SelectProfessional from './pages/SelectProfessional';
 import ServiceAddress from './pages/ServiceAddress';
 import SelectPayment from './pages/SelectPayment';
+import { ConfirmBooking } from './pages/ConfirmBooking';
 import TrackProfessional from './pages/TrackProfessional';
 import ServiceVerification from './pages/ServiceVerification';
 import MyBookings from './pages/MyBookings';
 import MyRewards from './pages/MyRewards';
 import ClientProfile from './pages/ClientProfile';
+
+// =========================================
+// 3. IMPORTACIONES: ZONA STAFF (PROFESIONAL)
+// =========================================
 import StaffDashboard from './pages/StaffDashboard';
 import StaffAppointmentDetails from './pages/StaffAppointmentDetails';
 import StaffNavigation from './pages/StaffNavigation';
-import StaffCheckIn from './pages/StaffCheckIn'; // <--- LA NUEVA PANTALLA
+import StaffCheckIn from './pages/StaffCheckIn';
+import StaffEmergency from './pages/StaffEmergency';
+import StaffServiceCompletion from './pages/StaffServiceCompletion'; // <--- NUEVA PANTALLA
 
 function AppRoutes() {
   const navigate = useNavigate();
 
-  // --- FUNCIÓN CENTRAL DE NAVEGACIÓN (BOTTOM NAV CLIENTE) ---
+  // Función de navegación para el menú inferior del Cliente
   const handleBottomNav = (tab: 'home' | 'bookings' | 'wallet' | 'profile') => {
     const routes = {
       home: '/home',
@@ -47,10 +59,10 @@ function AppRoutes() {
       } />
       
       {/* =========================================
-          ZONA STAFF (PROFESIONALES)
+          ZONA STAFF (FLUJO DEL PROFESIONAL)
       ========================================= */}
       
-      {/* Login de Staff */}
+      {/* 1. Login Staff */}
       <Route path="/staff" element={
         <StaffLogin 
           onBack={() => navigate('/')}
@@ -58,87 +70,99 @@ function AppRoutes() {
         />
       } />
 
-      {/* Dashboard Principal (Agenda) */}
+      {/* 2. Dashboard (Agenda) */}
       <Route path="/staff-dashboard" element={
         <StaffDashboard 
           onLogout={() => navigate('/')}
           onNavigate={(screen) => {
-             // Si selecciona ver una cita (ej. desde la tarjeta VIP)
+             // Si selecciona una cita, vamos al detalle
              if (screen === 'appointment-details') navigate('/staff-appointment');
           }}
         />
       } />
 
-      {/* Detalle de la Cita (Slide to Start) */}
+      {/* 3. Detalle de Cita (Slide to Start) */}
       <Route path="/staff-appointment" element={
         <StaffAppointmentDetails 
           onBack={() => navigate('/staff-dashboard')}
-          onStartJob={() => {
-             // Al deslizar, inicia el viaje y va al Mapa
-             navigate('/staff-navigation');
-          }}
+          onStartJob={() => navigate('/staff-navigation')}
         />
       } />
 
-      {/* Navegación GPS (Mapa Oscuro) */}
+      {/* 4. Navegación GPS (Mapa) */}
       <Route path="/staff-navigation" element={
         <StaffNavigation 
           onBack={() => navigate('/staff-appointment')} 
           onArrived={() => {
              alert("¡Has llegado al destino! 📍");
-             // AL LLEGAR, PASAMOS AL CHECK-IN DE SEGURIDAD
              navigate('/staff-checkin');
           }}
         />
       } />
 
-      {/* Check-in en Sitio (QR / Código) */}
+      {/* 5. Check-in de Seguridad */}
       <Route path="/staff-checkin" element={
         <StaffCheckIn 
           onBack={() => navigate('/staff-navigation')}
           onCheckInSuccess={() => {
-             alert("¡Check-in Exitoso! ✅ El servicio ha comenzado.");
-             // Aquí cerramos el ciclo por ahora volviendo al dashboard
-             navigate('/staff-dashboard'); 
+             alert("¡Check-in Exitoso! El servicio ha comenzado. ⏱️");
+             // Simulamos el fin del servicio yendo a completion
+             navigate('/staff-completion'); 
           }}
         />
       } />
 
+      {/* 6. Cierre de Servicio (Feedback & Notas) - NUEVO */}
+      <Route path="/staff-completion" element={
+        <StaffServiceCompletion 
+          onClose={() => navigate('/staff-dashboard')} 
+          onComplete={() => {
+             alert("¡Servicio Cerrado y Guardado! 💾");
+             navigate('/staff-dashboard'); // Ciclo completado
+          }}
+        />
+      } />
+
+      {/* 7. Botón de Pánico (SOS) - Accesible siempre */}
+      <Route path="/staff-emergency" element={
+        <StaffEmergency onBack={() => navigate(-1)} />
+      } />
+
       {/* =========================================
-          ZONA CLIENTE (CONSUMIDOR FINAL)
+          ZONA CLIENTE (FLUJO DEL USUARIO)
       ========================================= */}
       
-      {/* 1. Secciones Principales (Bottom Bar) */}
+      {/* Secciones Principales */}
       <Route path="/home" element={
         <Home 
           onLogout={() => navigate('/')} 
-          onSalonSelect={() => navigate('/salon')}
-          onNavigate={handleBottomNav}
+          onSalonSelect={() => navigate('/salon')} 
+          onNavigate={handleBottomNav} 
         />
       } />
 
       <Route path="/bookings" element={
         <MyBookings 
-          onBack={() => navigate('/home')}
-          onNavigate={handleBottomNav}
+          onBack={() => navigate('/home')} 
+          onNavigate={handleBottomNav} 
         />
       } />
 
       <Route path="/wallet" element={
         <MyRewards 
-          onBack={() => navigate('/home')}
-          onNavigate={handleBottomNav}
+          onBack={() => navigate('/home')} 
+          onNavigate={handleBottomNav} 
         />
       } />
 
       <Route path="/profile" element={
         <ClientProfile 
-          onLogout={() => navigate('/')}
-          onNavigate={handleBottomNav}
+          onLogout={() => navigate('/')} 
+          onNavigate={handleBottomNav} 
         />
       } />
 
-      {/* 2. Flujo de Reserva */}
+      {/* Flujo de Reserva */}
       <Route path="/salon" element={
         <SalonDetails 
           onBack={() => navigate('/home')} 
@@ -187,7 +211,7 @@ function AppRoutes() {
         />
       } />
 
-      {/* 3. Servicio Activo (Cliente rastreando al Staff) */}
+      {/* Flujo de Servicio Activo (Cliente) */}
       <Route path="/track" element={
         <TrackProfessional 
            onBack={() => navigate('/home')} 
