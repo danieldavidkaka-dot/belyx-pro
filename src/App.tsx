@@ -1,5 +1,6 @@
 import { useState } from 'react';
 
+// --- 1. IMPORTACIONES DE TODAS LAS PÁGINAS ---
 import { Welcome } from './pages/Welcome';
 import { Home } from './pages/Home';
 import { ConfirmBooking } from './pages/ConfirmBooking';
@@ -10,14 +11,45 @@ import SelectProfessional from './pages/SelectProfessional';
 import ServiceAddress from './pages/ServiceAddress';
 import SelectPayment from './pages/SelectPayment';
 import TrackProfessional from './pages/TrackProfessional';
+import ServiceVerification from './pages/ServiceVerification'; // <--- Nueva importación
 
-type ScreenType = 'welcome' | 'home' | 'salonDetails' | 'serviceDetails' | 'selectPro' | 'serviceAddress' | 'selectPayment' | 'confirm' | 'staff' | 'trackPro';
+// --- 2. DEFINICIÓN DE TIPOS (Todas las pantallas posibles) ---
+type ScreenType = 
+  | 'welcome' 
+  | 'home' 
+  | 'salonDetails' 
+  | 'serviceDetails' 
+  | 'selectPro' 
+  | 'serviceAddress' 
+  | 'selectPayment' 
+  | 'trackPro' 
+  | 'verification' // <--- Nuevo estado
+  | 'confirm' 
+  | 'staff';
 
 function App() {
   const [currentScreen, setCurrentScreen] = useState<ScreenType>('welcome');
 
   const renderScreen = () => {
     switch (currentScreen) {
+      
+      // --- FLUJO DE INICIO ---
+      case 'welcome':
+        return (
+          <Welcome 
+             onStart={() => setCurrentScreen('home')} 
+             onStaffLogin={() => setCurrentScreen('staff')}
+          />
+        );
+      
+      case 'staff':
+        return (
+          <StaffLogin 
+            onBack={() => setCurrentScreen('welcome')}
+            onLoginSuccess={() => setCurrentScreen('home')}
+          />
+        );
+
       case 'home':
         return (
           <Home 
@@ -25,13 +57,14 @@ function App() {
             onSalonSelect={() => setCurrentScreen('salonDetails')}
           />
         );
-
+      
+      // --- FLUJO DE RESERVA ---
       case 'salonDetails':
         return (
           <SalonDetails 
             onBack={() => setCurrentScreen('home')}
-            onServiceSelect={() => setCurrentScreen('serviceDetails')}
-            onBook={() => setCurrentScreen('selectPro')}
+            onBook={() => setCurrentScreen('selectPro')} // Atajo a reservar
+            onServiceSelect={() => setCurrentScreen('serviceDetails')} 
           />
         );
 
@@ -39,17 +72,18 @@ function App() {
         return (
           <ServiceDetails 
             onBack={() => setCurrentScreen('salonDetails')}
-            onBook={() => setCurrentScreen('selectPro')}
+            onBook={() => setCurrentScreen('selectPro')} // Paso 1: Elegir Pro
+            onServiceSelect={() => console.log("Servicio Info")} 
           />
         );
 
       case 'selectPro':
         return (
           <SelectProfessional 
-            onBack={() => setCurrentScreen('salonDetails')}
+            onBack={() => setCurrentScreen('serviceDetails')}
             onSelect={(proId) => {
-              console.log("Selected Pro:", proId);
-              setCurrentScreen('serviceAddress');
+              console.log("Pro seleccionado:", proId);
+              setCurrentScreen('serviceAddress'); // Paso 2: Elegir Dirección
             }}
           />
         );
@@ -58,9 +92,9 @@ function App() {
         return (
           <ServiceAddress 
             onBack={() => setCurrentScreen('selectPro')}
-            onConfirm={(address) => {
-              console.log("Address:", address);
-              setCurrentScreen('selectPayment');
+            onConfirm={(addrId) => {
+              console.log("Dirección:", addrId);
+              setCurrentScreen('selectPayment'); // Paso 3: Pagar
             }}
           />
         );
@@ -68,50 +102,60 @@ function App() {
       case 'selectPayment':
         return (
           <SelectPayment 
-            price={45.00}
+            price={120.00}
             onBack={() => setCurrentScreen('serviceAddress')}
             onConfirm={() => {
-              console.log("Pago procesado");
-              setCurrentScreen('trackPro');
+              console.log("Pago exitoso");
+              setCurrentScreen('trackPro'); // Paso 4: Tracking (Uber Style)
             }}
           />
         );
 
+      // --- FLUJO DE SERVICIO ACTIVO ---
       case 'trackPro':
         return (
           <TrackProfessional 
-             onBack={() => setCurrentScreen('home')}
+             // 1. Si da atrás, vuelve al Home (correcto UX)
+             onBack={() => setCurrentScreen('home')} 
+             
+             // 2. Si llama, solo mostramos alerta (simulando teléfono)
+             onCall={() => alert("Llamando a Sarah Jenkins... 📞")}
+
+             // 3. NUEVO: Si presiona el botón "Simulate Arrival", va a Verificación
+             onArrival={() => setCurrentScreen('verification')}
           />
         );
 
+      case 'verification':
+        return (
+          <ServiceVerification 
+            onBack={() => setCurrentScreen('trackPro')} // Volver al mapa si fue error
+            onVerified={() => {
+              alert("¡Servicio Verificado y Comenzado! ✅");
+              setCurrentScreen('home'); // Cierre del ciclo
+            }}
+          />
+        );
+
+      // --- OTROS / FALLBACKS ---
       case 'confirm':
         return (
           <ConfirmBooking 
             onBack={() => setCurrentScreen('selectPayment')}
-            onConfirm={() => setCurrentScreen('trackPro')}
-          />
-        );
-
-      case 'staff':
-        return (
-          <StaffLogin 
-            onBack={() => setCurrentScreen('welcome')}
-            onLoginSuccess={() => setCurrentScreen('home')}
+            onConfirm={() => setCurrentScreen('home')} 
           />
         );
       
-      case 'welcome':
       default:
-        return (
-          <Welcome 
-            onStart={() => setCurrentScreen('home')} 
-            onStaffLogin={() => setCurrentScreen('staff')} 
-          />
-        );
+        return <Welcome onStart={() => setCurrentScreen('home')} onStaffLogin={() => setCurrentScreen('staff')} />;
     }
   };
 
-  return <>{renderScreen()}</>;
+  return (
+    <>
+      {renderScreen()}
+    </>
+  );
 }
 
 export default App;

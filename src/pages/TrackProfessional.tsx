@@ -1,14 +1,12 @@
 import React, { useState, useEffect } from 'react';
 import { ArrowLeft, MoreHorizontal, Phone, MessageSquare, Car, Star, Navigation } from 'lucide-react';
-import { GradientButton } from '../components/GradientButton';
 
-// --- INTERFACES PARA ESCALABILIDAD ---
-// Definimos los datos del viaje para que sean fáciles de reemplazar por una API real.
+// --- INTERFACES ---
 interface TripData {
   status: 'On Time' | 'Delayed' | 'Arrived';
   eta: string;
   minutesAway: number;
-  progress: number; // 0 a 100
+  progress: number;
   currentLocation: string;
 }
 
@@ -24,7 +22,6 @@ interface ProfessionalData {
   };
 }
 
-// DATOS MOCK (Simulación de Real-Time)
 const MOCK_TRIP: TripData = {
   status: 'On Time',
   eta: '10:45 AM',
@@ -46,11 +43,12 @@ const MOCK_PRO: ProfessionalData = {
 };
 
 interface TrackProfessionalProps {
-  onBack: () => void;
+  onBack: () => void;      // Para volver atrás real
+  onCall: () => void;      // Para hacer la llamada
+  onArrival: () => void;   // Para avanzar a Verificación (Simulación)
 }
 
-export default function TrackProfessional({ onBack }: TrackProfessionalProps) {
-  // Simulamos un pequeño movimiento en el mapa (efecto visual)
+export default function TrackProfessional({ onBack, onCall, onArrival }: TrackProfessionalProps) {
   const [pulse, setPulse] = useState(false);
   
   useEffect(() => {
@@ -61,9 +59,8 @@ export default function TrackProfessional({ onBack }: TrackProfessionalProps) {
   return (
     <div className="relative h-screen w-full bg-slate-900 overflow-hidden font-sans">
       
-      {/* 1. MAPA DE FONDO (Dark Mode) */}
+      {/* 1. MAPA DE FONDO */}
       <div className="absolute inset-0 z-0">
-        {/* Imagen de mapa oscuro genérico */}
         <img 
           src="https://cartodb-basemaps-a.global.ssl.fastly.net/dark_all/14/4834/6160.png" 
           alt="Map Background" 
@@ -72,7 +69,7 @@ export default function TrackProfessional({ onBack }: TrackProfessionalProps) {
         <div className="absolute inset-0 bg-slate-900/40 pointer-events-none"></div>
       </div>
 
-      {/* 2. HEADER FLOTANTE */}
+      {/* 2. HEADER */}
       <div className="absolute top-0 w-full p-4 flex justify-between items-center z-20 pt-12">
         <button onClick={onBack} className="w-10 h-10 bg-slate-900/80 backdrop-blur-md rounded-full flex items-center justify-center text-white shadow-lg hover:bg-slate-800 transition">
           <ArrowLeft size={20} />
@@ -83,8 +80,18 @@ export default function TrackProfessional({ onBack }: TrackProfessionalProps) {
         </button>
       </div>
 
-      {/* 3. STATUS PILL (Flotante) */}
-      <div className="absolute top-28 left-1/2 -translate-x-1/2 z-20 animate-fade-in-down">
+      {/* 3. BOTÓN DE DEMO (SIMULAR LLEGADA) */}
+      <div className="absolute top-24 right-4 z-50">
+        <button 
+            onClick={onArrival}
+            className="bg-green-600 hover:bg-green-500 text-white text-xs font-bold px-4 py-2 rounded-full shadow-xl animate-bounce"
+        >
+            Simulate Arrival 📍
+        </button>
+      </div>
+
+      {/* 4. STATUS PILL */}
+      <div className="absolute top-28 left-1/2 -translate-x-1/2 z-20">
         <div className="bg-slate-900/90 backdrop-blur-md border border-slate-700 px-4 py-2 rounded-full flex items-center gap-2 shadow-2xl">
           <div className="w-5 h-5 bg-teal-500 rounded-full flex items-center justify-center">
             <Navigation size={12} className="text-white fill-white" />
@@ -95,33 +102,26 @@ export default function TrackProfessional({ onBack }: TrackProfessionalProps) {
         </div>
       </div>
 
-      {/* 4. MAP MARKER (El Profesional) */}
+      {/* 5. MAP MARKER */}
       <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 z-10 flex flex-col items-center">
-        {/* Avatar Circular con Borde Brillante */}
         <div className="relative">
-          {/* Ondas de radar animadas */}
           <div className={`absolute inset-0 rounded-full bg-cyan-500 opacity-20 scale-150 ${pulse ? 'animate-ping' : ''}`}></div>
           <div className="relative w-16 h-16 rounded-full border-4 border-slate-900 overflow-hidden shadow-2xl z-10">
              <img src={MOCK_PRO.image} alt="Pro" className="w-full h-full object-cover" />
           </div>
-          {/* Triángulo indicador (Flecha abajo) */}
           <div className="absolute -bottom-2 left-1/2 -translate-x-1/2 w-4 h-4 bg-slate-900 rotate-45 z-0"></div>
         </div>
       </div>
 
-      {/* 5. BOTTOM SHEET (Panel de Detalles) */}
+      {/* 6. BOTTOM SHEET */}
       <div className="absolute bottom-0 w-full bg-[#111318] rounded-t-[32px] p-6 z-30 shadow-2xl border-t border-slate-800/50">
-        
-        {/* Handle Bar (Barra gris pequeña arriba) */}
         <div className="w-12 h-1.5 bg-slate-700 rounded-full mx-auto mb-6 opacity-50"></div>
 
-        {/* Tiempo y Progreso */}
         <div className="mb-6">
           <div className="flex items-end gap-2 mb-3">
             <h2 className="text-4xl font-bold text-white tracking-tight">{MOCK_TRIP.eta}</h2>
             <span className="text-slate-400 text-sm font-medium pb-1.5">Estimated arrival</span>
           </div>
-          {/* Barra de Progreso con Gradiente */}
           <div className="w-full h-1.5 bg-slate-800 rounded-full overflow-hidden">
             <div 
               className="h-full bg-gradient-to-r from-purple-600 to-cyan-400 rounded-full shadow-[0_0_10px_rgba(168,85,247,0.5)]" 
@@ -130,7 +130,6 @@ export default function TrackProfessional({ onBack }: TrackProfessionalProps) {
           </div>
         </div>
 
-        {/* Tarjeta del Profesional */}
         <div className="bg-[#1C1F26] p-4 rounded-2xl border border-slate-800 flex items-center justify-between mb-6">
           <div className="flex items-center gap-4">
             <div className="relative">
@@ -151,28 +150,28 @@ export default function TrackProfessional({ onBack }: TrackProfessionalProps) {
               </div>
             </div>
           </div>
-
-          {/* Icono del Vehículo */}
           <div className="text-center">
             <Car size={24} className="text-slate-500 mx-auto mb-1" />
             <p className="text-[10px] text-slate-500 font-bold uppercase">{MOCK_PRO.vehicle.model}</p>
           </div>
         </div>
 
-        {/* Botones de Acción */}
         <div className="flex gap-4">
-          <button className="flex-1 bg-blue-600 hover:bg-blue-500 text-white font-bold py-4 rounded-xl flex items-center justify-center gap-2 transition-colors shadow-lg shadow-blue-900/20">
+          {/* BOTÓN CALL: Ahora ejecuta onCall */}
+          <button 
+            onClick={onCall}
+            className="flex-1 bg-blue-600 hover:bg-blue-500 text-white font-bold py-4 rounded-xl flex items-center justify-center gap-2 transition-colors shadow-lg shadow-blue-900/20 active:scale-95"
+          >
             <Phone size={20} />
             Call Professional
           </button>
           
-          <button className="w-16 bg-[#2A2E37] hover:bg-[#343942] text-white rounded-xl flex items-center justify-center transition-colors border border-slate-700">
+          <button className="w-16 bg-[#2A2E37] hover:bg-[#343942] text-white rounded-xl flex items-center justify-center transition-colors border border-slate-700 active:scale-95">
             <MessageSquare size={20} className="text-cyan-400" />
           </button>
         </div>
 
       </div>
-
     </div>
   );
 }
