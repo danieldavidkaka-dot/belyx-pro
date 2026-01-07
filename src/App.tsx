@@ -15,11 +15,15 @@ import ServiceVerification from './pages/ServiceVerification';
 import MyBookings from './pages/MyBookings';
 import MyRewards from './pages/MyRewards';
 import ClientProfile from './pages/ClientProfile';
+import StaffDashboard from './pages/StaffDashboard';
+import StaffAppointmentDetails from './pages/StaffAppointmentDetails';
+import StaffNavigation from './pages/StaffNavigation';
+import StaffCheckIn from './pages/StaffCheckIn'; // <--- LA NUEVA PANTALLA
 
 function AppRoutes() {
   const navigate = useNavigate();
 
-  // --- FUNCIÓN CENTRAL DE NAVEGACIÓN (BOTTOM NAV) ---
+  // --- FUNCIÓN CENTRAL DE NAVEGACIÓN (BOTTOM NAV CLIENTE) ---
   const handleBottomNav = (tab: 'home' | 'bookings' | 'wallet' | 'profile') => {
     const routes = {
       home: '/home',
@@ -32,7 +36,9 @@ function AppRoutes() {
 
   return (
     <Routes>
-      {/* --- LOGIN / BIENVENIDA --- */}
+      {/* =========================================
+          ZONA PÚBLICA / ONBOARDING
+      ========================================= */}
       <Route path="/" element={
         <Welcome 
           onStart={() => navigate('/home')} 
@@ -40,14 +46,69 @@ function AppRoutes() {
         />
       } />
       
+      {/* =========================================
+          ZONA STAFF (PROFESIONALES)
+      ========================================= */}
+      
+      {/* Login de Staff */}
       <Route path="/staff" element={
         <StaffLogin 
           onBack={() => navigate('/')}
-          onLoginSuccess={() => navigate('/home')}
+          onLoginSuccess={() => navigate('/staff-dashboard')} 
         />
       } />
 
-      {/* --- SECCIONES PRINCIPALES --- */}
+      {/* Dashboard Principal (Agenda) */}
+      <Route path="/staff-dashboard" element={
+        <StaffDashboard 
+          onLogout={() => navigate('/')}
+          onNavigate={(screen) => {
+             // Si selecciona ver una cita (ej. desde la tarjeta VIP)
+             if (screen === 'appointment-details') navigate('/staff-appointment');
+          }}
+        />
+      } />
+
+      {/* Detalle de la Cita (Slide to Start) */}
+      <Route path="/staff-appointment" element={
+        <StaffAppointmentDetails 
+          onBack={() => navigate('/staff-dashboard')}
+          onStartJob={() => {
+             // Al deslizar, inicia el viaje y va al Mapa
+             navigate('/staff-navigation');
+          }}
+        />
+      } />
+
+      {/* Navegación GPS (Mapa Oscuro) */}
+      <Route path="/staff-navigation" element={
+        <StaffNavigation 
+          onBack={() => navigate('/staff-appointment')} 
+          onArrived={() => {
+             alert("¡Has llegado al destino! 📍");
+             // AL LLEGAR, PASAMOS AL CHECK-IN DE SEGURIDAD
+             navigate('/staff-checkin');
+          }}
+        />
+      } />
+
+      {/* Check-in en Sitio (QR / Código) */}
+      <Route path="/staff-checkin" element={
+        <StaffCheckIn 
+          onBack={() => navigate('/staff-navigation')}
+          onCheckInSuccess={() => {
+             alert("¡Check-in Exitoso! ✅ El servicio ha comenzado.");
+             // Aquí cerramos el ciclo por ahora volviendo al dashboard
+             navigate('/staff-dashboard'); 
+          }}
+        />
+      } />
+
+      {/* =========================================
+          ZONA CLIENTE (CONSUMIDOR FINAL)
+      ========================================= */}
+      
+      {/* 1. Secciones Principales (Bottom Bar) */}
       <Route path="/home" element={
         <Home 
           onLogout={() => navigate('/')} 
@@ -77,7 +138,7 @@ function AppRoutes() {
         />
       } />
 
-      {/* --- FLUJO DE RESERVA --- */}
+      {/* 2. Flujo de Reserva */}
       <Route path="/salon" element={
         <SalonDetails 
           onBack={() => navigate('/home')} 
@@ -97,7 +158,10 @@ function AppRoutes() {
       <Route path="/select-pro" element={
         <SelectProfessional 
           onBack={() => navigate('/service')} 
-          onSelect={() => navigate('/address')} 
+          onSelect={(proId) => {
+             console.log("Pro:", proId);
+             navigate('/address');
+          }} 
         />
       } />
 
@@ -123,11 +187,11 @@ function AppRoutes() {
         />
       } />
 
-      {/* --- FLUJO DE SERVICIO ACTIVO --- */}
+      {/* 3. Servicio Activo (Cliente rastreando al Staff) */}
       <Route path="/track" element={
         <TrackProfessional 
            onBack={() => navigate('/home')} 
-           onCall={() => alert("Llamando al profesional... 📞")} 
+           onCall={() => alert("Llamando...")} 
            onArrival={() => navigate('/verification')} 
         />
       } />
@@ -136,7 +200,7 @@ function AppRoutes() {
         <ServiceVerification 
           onBack={() => navigate('/track')} 
           onVerified={() => {
-            alert("¡Servicio Completado! Puntos añadidos a tu Wallet 💎");
+            alert("¡Servicio Completado! Puntos añadidos.");
             navigate('/wallet');
           }}
         />
