@@ -1,14 +1,20 @@
 import React from 'react';
 import { GradientButton } from '../components/GradientButton';
 
-export const Welcome = () => {
+// 1. Definimos las props para que la pantalla sea funcional
+interface WelcomeProps {
+  onStart: () => void;
+  onStaffLogin: () => void;
+}
+
+export const Welcome = ({ onStart, onStaffLogin }: WelcomeProps) => {
   return (
     <div className="h-[100dvh] w-full bg-white flex flex-col items-center px-6 py-6 font-sans overflow-hidden supports-[height:100cqh]:h-[100cqh]">
       
       {/* SECCIÓN SUPERIOR */}
       <div className="flex flex-col items-center shrink-0">
         
-        {/* 1. LOGO CON MÁS ZOOM (Aumentado a w-60) */}
+        {/* LOGO */}
         <div className="mb-2"> 
             <img 
                 src="https://iili.io/fXbZvWu.md.png" 
@@ -17,7 +23,7 @@ export const Welcome = () => {
             />
         </div>
 
-        {/* 2. TEXTO LIMPIO (Frase anterior eliminada) */}
+        {/* TEXTO */}
         <p className="text-slate-500 text-center mb-6 text-sm leading-relaxed max-w-[280px]">
             Vive la experiencia en el salón o la comodidad de tu hogar.
         </p>
@@ -43,19 +49,24 @@ export const Welcome = () => {
         <div className="absolute bottom-0 left-0 right-0 h-32 bg-gradient-to-t from-black/30 to-transparent"></div>
       </div>
 
-      {/* SECCIÓN INFERIOR: Botón */}
+      {/* SECCIÓN INFERIOR: Acciones */}
       <div className="w-full max-w-md shrink-0">
+        {/* Botón Principal conectado a onStart */}
         <GradientButton 
             text="Comenzar" 
-            icon={
-                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={3} stroke="currentColor" className="w-5 h-5">
-                    <path strokeLinecap="round" strokeLinejoin="round" d="M13.5 4.5L21 12m0 0l-7.5 7.5M21 12H3" />
-                </svg>
-            }
+            onClick={onStart}
+            fullWidth={true}
         />
         
+        {/* Enlace de Login conectado a onStaffLogin */}
         <div className="mt-4 text-center text-sm text-slate-400 pb-2">
-            ¿Ya tienes una cuenta? <span className="text-[#8B31FF] font-bold cursor-pointer hover:underline">Iniciar Sesión</span>
+            ¿Ya tienes una cuenta? {' '}
+            <button 
+                onClick={onStaffLogin}
+                className="text-[#8B31FF] font-bold cursor-pointer hover:underline focus:outline-none"
+            >
+                Iniciar Sesión
+            </button>
         </div>
       </div>
 
