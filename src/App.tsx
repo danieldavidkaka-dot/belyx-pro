@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { BrowserRouter, Routes, Route, useNavigate, Navigate } from 'react-router-dom';
 
 // --- IMPORTACIONES DE TODAS LAS PÁGINAS ---
 import { Welcome } from './pages/Welcome';
@@ -16,175 +16,143 @@ import MyBookings from './pages/MyBookings';
 import MyRewards from './pages/MyRewards';
 import ClientProfile from './pages/ClientProfile';
 
-// --- DEFINICIÓN DE TIPOS (Estados de navegación) ---
-type ScreenType = 
-  | 'welcome' 
-  | 'home' 
-  | 'salonDetails' 
-  | 'serviceDetails' 
-  | 'selectPro' 
-  | 'serviceAddress' 
-  | 'selectPayment' 
-  | 'trackPro' 
-  | 'verification' 
-  | 'confirm' 
-  | 'staff' 
-  | 'bookings' 
-  | 'wallet' 
-  | 'profile';
-
-function App() {
-  const [currentScreen, setCurrentScreen] = useState<ScreenType>('welcome');
+function AppRoutes() {
+  const navigate = useNavigate();
 
   // --- FUNCIÓN CENTRAL DE NAVEGACIÓN (BOTTOM NAV) ---
-  // Esta función permite que la barra inferior cambie entre las secciones principales
   const handleBottomNav = (tab: 'home' | 'bookings' | 'wallet' | 'profile') => {
-     if (tab === 'home') setCurrentScreen('home');
-     if (tab === 'bookings') setCurrentScreen('bookings');
-     if (tab === 'wallet') setCurrentScreen('wallet');
-     if (tab === 'profile') setCurrentScreen('profile');
-  };
-
-  const renderScreen = () => {
-    switch (currentScreen) {
-      
-      // --- SECCIONES PRINCIPALES (Con Barra Inferior) ---
-
-      case 'home':
-        return (
-          <Home 
-            onLogout={() => setCurrentScreen('welcome')} 
-            onSalonSelect={() => setCurrentScreen('salonDetails')}
-            onNavigate={handleBottomNav}
-          />
-        );
-
-      case 'bookings':
-        return (
-          <MyBookings 
-            onBack={() => setCurrentScreen('home')}
-            onNavigate={handleBottomNav}
-          />
-        );
-
-      case 'wallet':
-        return (
-          <MyRewards 
-            onBack={() => setCurrentScreen('home')}
-            onNavigate={handleBottomNav}
-          />
-        );
-
-      case 'profile':
-        return (
-          <ClientProfile 
-            onLogout={() => setCurrentScreen('welcome')}
-            onNavigate={handleBottomNav}
-          />
-        );
-
-      // --- FLUJO DE RESERVA ---
-
-      case 'salonDetails':
-        return (
-          <SalonDetails 
-            onBack={() => setCurrentScreen('home')} 
-            onBook={() => setCurrentScreen('selectPro')} 
-            onServiceSelect={() => setCurrentScreen('serviceDetails')} 
-          />
-        );
-
-      case 'serviceDetails':
-        return (
-          <ServiceDetails 
-            onBack={() => setCurrentScreen('salonDetails')} 
-            onBook={() => setCurrentScreen('selectPro')} 
-            onServiceSelect={() => {}} 
-          />
-        );
-
-      case 'selectPro':
-        return (
-          <SelectProfessional 
-            onBack={() => setCurrentScreen('serviceDetails')} 
-            onSelect={() => setCurrentScreen('serviceAddress')} 
-          />
-        );
-
-      case 'serviceAddress':
-        return (
-          <ServiceAddress 
-            onBack={() => setCurrentScreen('selectPro')} 
-            onConfirm={() => setCurrentScreen('selectPayment')} 
-          />
-        );
-
-      case 'selectPayment':
-        return (
-          <SelectPayment 
-            price={45.00} 
-            onBack={() => setCurrentScreen('serviceAddress')} 
-            onConfirm={() => setCurrentScreen('trackPro')} 
-          />
-        );
-
-      // --- FLUJO DE SERVICIO ACTIVO (Operaciones) ---
-
-      case 'trackPro':
-        return (
-          <TrackProfessional 
-             onBack={() => setCurrentScreen('home')} 
-             onCall={() => alert("Llamando al profesional... 📞")} 
-             onArrival={() => setCurrentScreen('verification')} 
-          />
-        );
-
-      case 'verification':
-        return (
-          <ServiceVerification 
-            onBack={() => setCurrentScreen('trackPro')} 
-            onVerified={() => {
-              alert("¡Servicio Completado! Puntos añadidos a tu Wallet 💎");
-              setCurrentScreen('wallet'); // Redirige a Wallet para ver los puntos
-            }}
-          />
-        );
-
-      case 'confirm':
-        return (
-          <ConfirmBooking 
-            onBack={() => setCurrentScreen('selectPayment')} 
-            onConfirm={() => setCurrentScreen('home')} 
-          />
-        );
-
-      // --- LOGIN / STAFF ---
-      
-      case 'welcome':
-        return (
-          <Welcome 
-             onStart={() => setCurrentScreen('home')} 
-             onStaffLogin={() => setCurrentScreen('staff')}
-          />
-        );
-      
-      case 'staff':
-        return (
-          <StaffLogin 
-            onBack={() => setCurrentScreen('welcome')}
-            onLoginSuccess={() => setCurrentScreen('home')}
-          />
-        );
-      
-      default:
-        return <Welcome onStart={() => setCurrentScreen('home')} onStaffLogin={() => setCurrentScreen('staff')} />;
-    }
+    const routes = {
+      home: '/home',
+      bookings: '/bookings',
+      wallet: '/wallet',
+      profile: '/profile'
+    };
+    navigate(routes[tab]);
   };
 
   return (
-    <>
-      {renderScreen()}
-    </>
+    <Routes>
+      {/* --- LOGIN / BIENVENIDA --- */}
+      <Route path="/" element={
+        <Welcome 
+          onStart={() => navigate('/home')} 
+          onStaffLogin={() => navigate('/staff')} 
+        />
+      } />
+      
+      <Route path="/staff" element={
+        <StaffLogin 
+          onBack={() => navigate('/')}
+          onLoginSuccess={() => navigate('/home')}
+        />
+      } />
+
+      {/* --- SECCIONES PRINCIPALES --- */}
+      <Route path="/home" element={
+        <Home 
+          onLogout={() => navigate('/')} 
+          onSalonSelect={() => navigate('/salon')}
+          onNavigate={handleBottomNav}
+        />
+      } />
+
+      <Route path="/bookings" element={
+        <MyBookings 
+          onBack={() => navigate('/home')}
+          onNavigate={handleBottomNav}
+        />
+      } />
+
+      <Route path="/wallet" element={
+        <MyRewards 
+          onBack={() => navigate('/home')}
+          onNavigate={handleBottomNav}
+        />
+      } />
+
+      <Route path="/profile" element={
+        <ClientProfile 
+          onLogout={() => navigate('/')}
+          onNavigate={handleBottomNav}
+        />
+      } />
+
+      {/* --- FLUJO DE RESERVA --- */}
+      <Route path="/salon" element={
+        <SalonDetails 
+          onBack={() => navigate('/home')} 
+          onBook={() => navigate('/select-pro')} 
+          onServiceSelect={() => navigate('/service')} 
+        />
+      } />
+
+      <Route path="/service" element={
+        <ServiceDetails 
+          onBack={() => navigate('/salon')} 
+          onBook={() => navigate('/select-pro')} 
+          onServiceSelect={() => {}} 
+        />
+      } />
+
+      <Route path="/select-pro" element={
+        <SelectProfessional 
+          onBack={() => navigate('/service')} 
+          onSelect={() => navigate('/address')} 
+        />
+      } />
+
+      <Route path="/address" element={
+        <ServiceAddress 
+          onBack={() => navigate('/select-pro')} 
+          onConfirm={() => navigate('/payment')} 
+        />
+      } />
+
+      <Route path="/payment" element={
+        <SelectPayment 
+          price={45.00} 
+          onBack={() => navigate('/address')} 
+          onConfirm={() => navigate('/track')} 
+        />
+      } />
+
+      <Route path="/confirm" element={
+        <ConfirmBooking 
+          onBack={() => navigate('/payment')} 
+          onConfirm={() => navigate('/home')} 
+        />
+      } />
+
+      {/* --- FLUJO DE SERVICIO ACTIVO --- */}
+      <Route path="/track" element={
+        <TrackProfessional 
+           onBack={() => navigate('/home')} 
+           onCall={() => alert("Llamando al profesional... 📞")} 
+           onArrival={() => navigate('/verification')} 
+        />
+      } />
+
+      <Route path="/verification" element={
+        <ServiceVerification 
+          onBack={() => navigate('/track')} 
+          onVerified={() => {
+            alert("¡Servicio Completado! Puntos añadidos a tu Wallet 💎");
+            navigate('/wallet');
+          }}
+        />
+      } />
+
+      {/* Redirección por defecto */}
+      <Route path="*" element={<Navigate to="/" replace />} />
+    </Routes>
+  );
+}
+
+function App() {
+  return (
+    <BrowserRouter>
+      <AppRoutes />
+    </BrowserRouter>
   );
 }
 
