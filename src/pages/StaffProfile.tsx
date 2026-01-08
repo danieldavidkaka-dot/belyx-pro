@@ -4,7 +4,7 @@ import {
   ChevronLeft, Star, Calendar, BarChart2, Scissors, 
   Users, User, Bell, HelpCircle, LogOut, ChevronRight 
 } from 'lucide-react';
-import { StaffBottomNav } from '../components/StaffBottomNav';
+// ELIMINADO: import { StaffBottomNav } from '../components/StaffBottomNav';
 
 // Datos Centralizados
 import { STAFF_PROFILE } from '../data/mocks';
@@ -17,15 +17,7 @@ export default function StaffProfile({ onLogout }: StaffProfileProps) {
   const navigate = useNavigate();
   const [isOnDuty, setIsOnDuty] = useState(STAFF_PROFILE.isOnDuty);
 
-  // Navegación Inferior
-  const handleBottomNav = (tab: 'agenda' | 'clients' | 'earnings' | 'profile') => {
-    switch (tab) {
-      case 'agenda': navigate('/staff-dashboard'); break;
-      case 'clients': navigate('/staff-clients'); break;
-      case 'earnings': navigate('/staff-earnings'); break;
-      case 'profile': return; // Ya estamos aquí
-    }
-  };
+  // ELIMINADO: const handleBottomNav ... (Ya lo maneja el StaffLayout)
 
   return (
     <div className="bg-[#FAFAFA] min-h-screen pb-24 font-sans text-slate-900 relative">
@@ -149,9 +141,7 @@ export default function StaffProfile({ onLogout }: StaffProfileProps) {
           </p>
       </div>
 
-      {/* FOOTER NAV */}
-      <StaffBottomNav activeTab="profile" onNavigate={handleBottomNav} />
-
+      {/* ELIMINADO: <StaffBottomNav ... /> */}
     </div>
   );
 }

@@ -5,7 +5,6 @@ import {
   Utensils, Users, Clock, ChevronRight, TrendingUp, LogOut, 
   Shield 
 } from 'lucide-react';
-import { StaffBottomNav } from '../components/StaffBottomNav';
 
 // 1. IMPORTACIONES CENTRALIZADAS
 import { ScheduleItem } from '../types';
@@ -27,27 +26,6 @@ export default function StaffDashboard({ onLogout }: StaffDashboardProps) {
     navigate(route);
   };
 
-  // 2. LÓGICA DE NAVEGACIÓN INFERIOR (ACTUALIZADA)
-  const handleBottomNav = (tab: 'agenda' | 'clients' | 'earnings' | 'profile') => {
-    switch (tab) {
-      case 'agenda': 
-        // Ya estamos en la agenda
-        break;
-      case 'clients': 
-        // ¡CONECTADO! Navega a la pantalla de Clientes
-        navigate('/staff-clients'); 
-        break;
-      case 'earnings': 
-        // ¡CONECTADO! Navega a la pantalla de Ganancias
-        navigate('/staff-earnings'); 
-        break;
-      case 'profile': 
-        // ¡CONECTADO! Navega a la pantalla de Perfil
-        navigate('/staff-profile'); 
-        break;
-    }
-  };
-
   // Renderizador de tarjetas
   const renderCard = (item: ScheduleItem) => {
     switch (item.type) {
@@ -55,7 +33,6 @@ export default function StaffDashboard({ onLogout }: StaffDashboardProps) {
         const isVIP = item.isVIP;
         return (
           <div 
-             // Al hacer clic en una cita a domicilio, vamos al detalle
              onClick={() => item.locationType === 'Home Visit' && handleInternalNav('/staff-appointment')}
              className={`relative p-4 rounded-3xl transition-all cursor-pointer active:scale-[0.98] ${
              isVIP 
@@ -163,24 +140,9 @@ export default function StaffDashboard({ onLogout }: StaffDashboardProps) {
              
              {/* BOTONES DE ACCIÓN */}
              <div className="flex gap-2">
-                 <button 
-                    onClick={() => handleInternalNav('/staff-emergency')} 
-                    className="p-2 bg-red-50 hover:bg-red-100 text-red-500 rounded-full transition border border-red-100"
-                 >
-                     <Shield size={20} />
-                 </button>
-
-                 <button 
-                    onClick={onLogout} 
-                    className="p-2 bg-slate-50 hover:bg-slate-100 text-slate-400 hover:text-slate-600 rounded-full transition"
-                 >
-                     <LogOut size={20} />
-                 </button>
-
-                 <button className="relative p-2 bg-slate-50 hover:bg-slate-100 rounded-full transition">
-                     <Bell size={20} className="text-slate-900" />
-                     <span className="absolute top-2 right-2 w-2 h-2 bg-purple-600 rounded-full"></span>
-                 </button>
+                 <button onClick={() => handleInternalNav('/staff-emergency')} className="p-2 bg-red-50 hover:bg-red-100 text-red-500 rounded-full transition border border-red-100"><Shield size={20} /></button>
+                 <button onClick={onLogout} className="p-2 bg-slate-50 hover:bg-slate-100 text-slate-400 hover:text-slate-600 rounded-full transition"><LogOut size={20} /></button>
+                 <button className="relative p-2 bg-slate-50 hover:bg-slate-100 rounded-full transition"><Bell size={20} className="text-slate-900" /><span className="absolute top-2 right-2 w-2 h-2 bg-purple-600 rounded-full"></span></button>
              </div>
          </div>
 
@@ -190,15 +152,7 @@ export default function StaffDashboard({ onLogout }: StaffDashboardProps) {
                 const isActive = day === selectedDate;
                 const days = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri'];
                 return (
-                    <button 
-                       key={day} 
-                       onClick={() => setSelectedDate(day)}
-                       className={`flex flex-col items-center justify-center w-14 h-16 rounded-2xl transition-all ${
-                           isActive 
-                             ? 'bg-gradient-to-b from-[#8B31FF] to-[#00D4FF] text-white shadow-lg shadow-purple-200 scale-105' 
-                             : 'bg-white border border-slate-100 text-slate-400 hover:border-purple-200'
-                       }`}
-                    >
+                    <button key={day} onClick={() => setSelectedDate(day)} className={`flex flex-col items-center justify-center w-14 h-16 rounded-2xl transition-all ${isActive ? 'bg-gradient-to-b from-[#8B31FF] to-[#00D4FF] text-white shadow-lg shadow-purple-200 scale-105' : 'bg-white border border-slate-100 text-slate-400 hover:border-purple-200'}`}>
                         <span className={`text-[10px] font-medium mb-1 ${isActive ? 'text-white/80' : 'text-slate-400'}`}>{days[index]}</span>
                         <span className="text-xl font-bold">{day}</span>
                     </button>
@@ -219,9 +173,7 @@ export default function StaffDashboard({ onLogout }: StaffDashboardProps) {
              </div>
              <div className="h-10 w-px bg-white/20"></div>
              <div className="text-right">
-                 <div className="flex items-center gap-1 justify-end text-cyan-400 text-sm font-bold mb-1">
-                     <TrendingUp size={16} /> 95%
-                 </div>
+                 <div className="flex items-center gap-1 justify-end text-cyan-400 text-sm font-bold mb-1"><TrendingUp size={16} /> 95%</div>
                  <p className="text-xs text-slate-400">Utilization</p>
              </div>
          </div>
@@ -230,34 +182,21 @@ export default function StaffDashboard({ onLogout }: StaffDashboardProps) {
       {/* 3. TIMELINE & CARDS */}
       <div className="px-6 space-y-6 relative">
           <div className="absolute left-[4.5rem] top-4 bottom-10 w-px bg-slate-100 -z-10"></div>
-
           {STAFF_SCHEDULE.map((item) => (
               <div key={item.id} className="flex gap-4">
                   <div className="w-12 pt-4 flex flex-col items-end shrink-0">
                       <span className="text-sm font-bold text-slate-900 leading-none">{item.time.split(' ')[0]}</span>
                       <span className="text-[10px] font-medium text-slate-400">{item.time.split(' ')[1]}</span>
                   </div>
-
-                  <div className="flex-1 min-w-0">
-                      {renderCard(item)}
-                  </div>
+                  <div className="flex-1 min-w-0">{renderCard(item)}</div>
               </div>
           ))}
       </div>
 
       {/* 4. FAB */}
       <div className="fixed bottom-24 right-6 z-40">
-          <button className="w-14 h-14 bg-[#111] rounded-full flex items-center justify-center text-white shadow-xl hover:scale-105 active:scale-95 transition-transform">
-              <Plus size={24} />
-          </button>
+          <button className="w-14 h-14 bg-[#111] rounded-full flex items-center justify-center text-white shadow-xl hover:scale-105 active:scale-95 transition-transform"><Plus size={24} /></button>
       </div>
-
-      {/* 5. STAFF NAVIGATION */}
-      <StaffBottomNav 
-         activeTab="agenda" 
-         onNavigate={handleBottomNav} 
-      />
-
     </div>
   );
 }

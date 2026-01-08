@@ -14,7 +14,7 @@ export default function StaffEarnings() {
   const [period, setPeriod] = useState<'Daily' | 'Weekly' | 'Monthly'>('Weekly');
   const [showBalance, setShowBalance] = useState(true);
 
-  // Navegación del menú inferior (ACTUALIZADA)
+  // Navegación del menú inferior (ACTUALIZADA COMPLETAMENTE)
   const handleBottomNav = (tab: 'agenda' | 'clients' | 'earnings' | 'profile') => {
     switch (tab) {
       case 'agenda': 

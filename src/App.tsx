@@ -1,14 +1,10 @@
 import { BrowserRouter, Routes, Route, useNavigate, Navigate } from 'react-router-dom';
 
-// =========================================
-// 1. IMPORTACIONES: ZONA PÚBLICA & AUTH
-// =========================================
+// 1. ZONA PÚBLICA
 import { Welcome } from './pages/Welcome';
 import StaffLogin from './pages/StaffLogin';
 
-// =========================================
-// 2. IMPORTACIONES: ZONA CLIENTE
-// =========================================
+// 2. ZONA CLIENTE
 import { Home } from './pages/Home';
 import { SalonDetails } from './pages/SalonDetails';
 import ServiceDetails from './pages/ServiceDetails';
@@ -22,10 +18,9 @@ import MyBookings from './pages/MyBookings';
 import MyRewards from './pages/MyRewards';
 import ClientProfile from './pages/ClientProfile';
 
-// =========================================
-// 3. IMPORTACIONES: ZONA STAFF
-// =========================================
-import StaffProfile from './pages/StaffProfile'; // <--- Importado
+// 3. ZONA STAFF
+import StaffLayout from './layouts/StaffLayout'; // <--- IMPORTANTE
+import StaffProfile from './pages/StaffProfile';
 import StaffDashboard from './pages/StaffDashboard';
 import StaffAppointmentDetails from './pages/StaffAppointmentDetails';
 import StaffNavigation from './pages/StaffNavigation';
@@ -55,17 +50,21 @@ function AppRoutes() {
       
       {/* ZONA STAFF */}
       <Route path="/staff" element={<StaffLogin onBack={() => navigate('/')} onLoginSuccess={() => navigate('/staff-dashboard')} />} />
-      <Route path="/staff-dashboard" element={<StaffDashboard onLogout={() => navigate('/')} />} />
+      
+      {/* --- RUTAS CON LAYOUT (Barra de navegación visible) --- */}
+      <Route element={<StaffLayout />}>
+        <Route path="/staff-dashboard" element={<StaffDashboard onLogout={() => navigate('/')} />} />
+        <Route path="/staff-earnings" element={<StaffEarnings />} />
+        <Route path="/staff-clients" element={<StaffClients />} />
+        <Route path="/staff-profile" element={<StaffProfile onLogout={() => navigate('/')} />} />
+      </Route>
+
+      {/* --- RUTAS SIN LAYOUT (Flujos específicos pantalla completa) --- */}
       <Route path="/staff-appointment" element={<StaffAppointmentDetails onBack={() => navigate('/staff-dashboard')} onStartJob={() => navigate('/staff-navigation')} />} />
       <Route path="/staff-navigation" element={<StaffNavigation onBack={() => navigate('/staff-appointment')} onArrived={() => { alert("¡Llegaste!"); navigate('/staff-checkin'); }} />} />
       <Route path="/staff-checkin" element={<StaffCheckIn onBack={() => navigate('/staff-navigation')} onCheckInSuccess={() => { alert("¡Servicio Iniciado!"); navigate('/staff-completion'); }} />} />
       <Route path="/staff-completion" element={<StaffServiceCompletion onClose={() => navigate('/staff-dashboard')} onComplete={() => { alert("¡Guardado!"); navigate('/staff-dashboard'); }} />} />
       <Route path="/staff-emergency" element={<StaffEmergency onBack={() => navigate(-1)} />} />
-      
-      {/* RUTAS DE PESTAÑAS INFERIORES DEL STAFF */}
-      <Route path="/staff-earnings" element={<StaffEarnings />} />
-      <Route path="/staff-clients" element={<StaffClients />} />
-      <Route path="/staff-profile" element={<StaffProfile onLogout={() => navigate('/')} />} /> {/* <--- ¡ESTA ERA LA LÍNEA QUE FALTABA! */}
 
       {/* ZONA CLIENTE */}
       <Route path="/home" element={<Home onLogout={() => navigate('/')} onSalonSelect={() => navigate('/salon')} onNavigate={handleBottomNav} />} />
