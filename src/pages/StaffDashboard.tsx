@@ -1,82 +1,44 @@
 import React, { useState } from 'react';
-import { useNavigate } from 'react-router-dom'; // <--- 1. IMPORTAR EL HOOK
+// 1. MEJORA: Usamos useNavigate directamente para evitar "Prop Drilling"
+import { useNavigate } from 'react-router-dom'; 
 import { 
   Bell, MoreHorizontal, MapPin, Navigation, Plus, 
   Utensils, Users, Clock, ChevronRight, TrendingUp, LogOut, 
-  Shield // <--- 2. IMPORTAR ICONO SHIELD
+  Shield 
 } from 'lucide-react';
 import { StaffBottomNav } from '../components/StaffBottomNav';
+import { ScheduleItem } from '../types'; // Importamos la interfaz compartida
+import { STAFF_SCHEDULE } from '../data/mocks'; // Importamos los datos
 
-type EventType = 'appointment' | 'meeting' | 'break' | 'empty';
-
-interface ScheduleItem {
-  id: string;
-  time: string;
-  type: EventType;
-  duration?: string;
-  clientName?: string;
-  serviceName?: string;
-  clientImage?: string;
-  locationType?: 'In-Salon' | 'Home Visit';
-  distance?: string;
-  status?: 'Confirmed' | 'Pending' | 'Completed';
-  isVIP?: boolean;
-  title?: string;
-  subtitle?: string;
-}
-
-const MOCK_SCHEDULE: ScheduleItem[] = [
-  {
-    id: '1',
-    time: '09:00 AM',
-    type: 'meeting',
-    title: 'Team Meeting',
-    subtitle: 'Weekly Sync',
-  },
-  {
-    id: '2',
-    time: '10:30 AM',
-    type: 'appointment',
-    clientName: 'Maria G.',
-    serviceName: 'Full Balayage & Cut',
-    duration: '2h 30m',
-    locationType: 'In-Salon',
-    status: 'Confirmed',
-    clientImage: 'https://images.unsplash.com/photo-1580489944761-15a19d654956?q=80&w=200',
-  },
-  {
-    id: '3',
-    time: '01:00 PM',
-    type: 'appointment',
-    clientName: 'Sophie L.',
-    serviceName: 'Bridal Makeup Trial',
-    locationType: 'Home Visit',
-    distance: '5km away',
-    clientImage: 'https://images.unsplash.com/photo-1494790108377-be9c29b29330?q=80&w=200',
-    isVIP: true,
-  },
-  {
-    id: '4',
-    time: '03:00 PM',
-    type: 'break',
-    title: 'Lunch Break',
-    duration: '1h',
-  },
-  {
-    id: '5',
-    time: '04:00 PM',
-    type: 'empty',
-  }
-];
+// 2. MEJORA: Definición estricta de rutas internas del dashboard
+// Esto evita errores de dedo al escribir las rutas
+type DashboardRoute = '/staff-appointment' | '/staff-emergency' | '/';
 
 interface StaffDashboardProps {
   onLogout: () => void;
-  onNavigate: (screen: any) => void;
+  // 3. MEJORA: Ya no necesitamos recibir onNavigate desde App.tsx
+  // onNavigate: (screen: any) => void; <--- ELIMINADO POR OBSOLETO
 }
 
-export default function StaffDashboard({ onLogout, onNavigate }: StaffDashboardProps) {
+export default function StaffDashboard({ onLogout }: StaffDashboardProps) {
   const [selectedDate, setSelectedDate] = useState(14); 
-  const navigate = useNavigate(); // <--- 3. INICIALIZAR EL HOOK
+  const navigate = useNavigate(); // Hook de navegación
+
+  // Función auxiliar segura para navegar
+  const handleInternalNav = (route: DashboardRoute) => {
+    navigate(route);
+  };
+
+  // Lógica para la barra de navegación inferior
+  const handleBottomNav = (tab: 'agenda' | 'clients' | 'earnings' | 'profile') => {
+    // Aquí definirías las rutas reales para cada tab
+    switch (tab) {
+      case 'agenda': navigate('/staff-dashboard'); break;
+      // case 'clients': navigate('/staff-clients'); break;
+      // case 'profile': navigate('/staff-profile'); break;
+      default: console.log("Navegación a:", tab);
+    }
+  };
 
   const renderCard = (item: ScheduleItem) => {
     switch (item.type) {
@@ -84,7 +46,8 @@ export default function StaffDashboard({ onLogout, onNavigate }: StaffDashboardP
         const isVIP = item.isVIP;
         return (
           <div 
-             onClick={() => item.locationType === 'Home Visit' && onNavigate('appointment-details')}
+             // 4. USO: Navegación directa y tipada
+             onClick={() => item.locationType === 'Home Visit' && handleInternalNav('/staff-appointment')}
              className={`relative p-4 rounded-3xl transition-all cursor-pointer active:scale-[0.98] ${
              isVIP 
                ? 'bg-white shadow-[0_0_20px_rgba(139,49,255,0.15)] border border-purple-100' 
@@ -175,7 +138,7 @@ export default function StaffDashboard({ onLogout, onNavigate }: StaffDashboardP
   return (
     <div className="bg-[#FAFAFA] min-h-screen pb-24 font-sans relative">
       
-      {/* 1. HEADER (STAFF PORTAL) */}
+      {/* 1. HEADER */}
       <div className="bg-white p-6 pb-2 sticky top-0 z-20 shadow-sm">
          <div className="flex justify-between items-center mb-6">
              <div className="flex items-center gap-3">
@@ -191,9 +154,8 @@ export default function StaffDashboard({ onLogout, onNavigate }: StaffDashboardP
              
              {/* --- BOTONES DE ACCIÓN --- */}
              <div className="flex gap-2">
-                 {/* 4. BOTÓN SOS AGREGADO AQUÍ */}
                  <button 
-                    onClick={() => navigate('/staff-emergency')} 
+                    onClick={() => handleInternalNav('/staff-emergency')} 
                     className="p-2 bg-red-50 hover:bg-red-100 text-red-500 rounded-full transition border border-red-100"
                  >
                      <Shield size={20} />
@@ -260,7 +222,7 @@ export default function StaffDashboard({ onLogout, onNavigate }: StaffDashboardP
       <div className="px-6 space-y-6 relative">
           <div className="absolute left-[4.5rem] top-4 bottom-10 w-px bg-slate-100 -z-10"></div>
 
-          {MOCK_SCHEDULE.map((item) => (
+          {STAFF_SCHEDULE.map((item) => (
               <div key={item.id} className="flex gap-4">
                   <div className="w-12 pt-4 flex flex-col items-end shrink-0">
                       <span className="text-sm font-bold text-slate-900 leading-none">{item.time.split(' ')[0]}</span>
@@ -274,7 +236,7 @@ export default function StaffDashboard({ onLogout, onNavigate }: StaffDashboardP
           ))}
       </div>
 
-      {/* 4. FAB (Add Event) */}
+      {/* 4. FAB */}
       <div className="fixed bottom-24 right-6 z-40">
           <button className="w-14 h-14 bg-[#111] rounded-full flex items-center justify-center text-white shadow-xl hover:scale-105 active:scale-95 transition-transform">
               <Plus size={24} />
@@ -284,9 +246,7 @@ export default function StaffDashboard({ onLogout, onNavigate }: StaffDashboardP
       {/* 5. STAFF NAVIGATION */}
       <StaffBottomNav 
          activeTab="agenda" 
-         onNavigate={(tab) => {
-             console.log("Staff Nav:", tab);
-         }} 
+         onNavigate={handleBottomNav} 
       />
 
     </div>

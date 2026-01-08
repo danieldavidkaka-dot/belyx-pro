@@ -72,14 +72,8 @@ function AppRoutes() {
 
       {/* 2. Dashboard (Agenda) */}
       <Route path="/staff-dashboard" element={
-        <StaffDashboard 
-          onLogout={() => navigate('/')}
-          onNavigate={(screen) => {
-             // Si selecciona una cita, vamos al detalle
-             if (screen === 'appointment-details') navigate('/staff-appointment');
-          }}
-        />
-      } />
+  <StaffDashboard onLogout={() => navigate('/')} />
+} />
 
       {/* 3. Detalle de Cita (Slide to Start) */}
       <Route path="/staff-appointment" element={

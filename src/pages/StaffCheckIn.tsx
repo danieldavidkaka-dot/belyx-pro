@@ -1,16 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { ArrowLeft, QrCode, Keyboard, Zap, HelpCircle, AlertCircle } from 'lucide-react';
-
-// --- ESTRUCTURA DE DATOS ESCALABLE ---
-interface CheckInSession {
-  bookingId: string;
-  clientName: string;
-  serviceName: string;
-  serviceTime: string;
-  clientImage: string;
-  locationType: 'A Domicilio' | 'In-Salon';
-  status: 'Arrived' | 'Checking In';
-}
+import { CheckInSession } from '../types';
 
 const MOCK_SESSION: CheckInSession = {
   bookingId: '#4092',

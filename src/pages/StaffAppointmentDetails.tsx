@@ -3,58 +3,7 @@ import {
   ArrowLeft, Phone, MessageSquare, MapPin, Navigation, 
   Copy, AlertCircle, ChevronRight, Clock, Shield 
 } from 'lucide-react';
-
-// --- ESTRUCTURA DE DATOS ESCALABLE ---
-interface AppointmentData {
-  id: string;
-  status: 'CONFIRMED' | 'PENDING' | 'STARTED';
-  timeRange: string;
-  date: string;
-  client: {
-    name: string;
-    image: string;
-    isVIP: boolean;
-    type: 'Home Service' | 'In-Salon';
-  };
-  service: {
-    name: string;
-    duration: string;
-    price: number;
-  };
-  location: {
-    address: string;
-    city: string;
-    gateCode?: string;
-    coordinates: { lat: number; lng: number }; // Para integración futura con Google Maps
-  };
-  medicalAlert?: string; // Opcional, pero crítico si existe
-}
-
-// DATOS MOCK
-const MOCK_DATA: AppointmentData = {
-  id: '#4092',
-  status: 'CONFIRMED',
-  timeRange: '14:00 - 15:30',
-  date: 'JULY 24, 2024',
-  client: {
-    name: 'Ana López',
-    image: 'https://images.unsplash.com/photo-1580489944761-15a19d654956?q=80&w=200',
-    isVIP: true,
-    type: 'Home Service'
-  },
-  service: {
-    name: 'Luxury Manicure',
-    duration: '90 mins',
-    price: 120
-  },
-  location: {
-    address: 'Av. Oaxaca 12, Roma Nte.',
-    city: 'Cuauhtémoc, 06700 Ciudad de México',
-    gateCode: '4892#',
-    coordinates: { lat: 19.4, lng: -99.1 }
-  },
-  medicalAlert: 'Client is allergic to latex products. Please ensure all equipment is latex-free and use nitrile gloves.'
-};
+import { CURRENT_APPOINTMENT } from '../data/mocks'; // Importación de datos
 
 interface StaffAppointmentDetailsProps {
   onBack: () => void;
@@ -80,9 +29,9 @@ export default function StaffAppointmentDetails({ onBack, onStartJob }: StaffApp
         <button onClick={onBack} className="p-2 -ml-2 bg-[#1C1F26] rounded-full hover:bg-white/10 transition">
           <ArrowLeft size={20} />
         </button>
-        <h1 className="font-bold text-sm text-slate-300">Appointment {MOCK_DATA.id}</h1>
+        <h1 className="font-bold text-sm text-slate-300">Appointment {CURRENT_APPOINTMENT.id}</h1>
         <span className="bg-green-500/10 text-green-400 text-[10px] font-bold px-3 py-1 rounded-full border border-green-500/20">
-            {MOCK_DATA.status}
+            {CURRENT_APPOINTMENT.status}
         </span>
       </div>
 
@@ -90,11 +39,11 @@ export default function StaffAppointmentDetails({ onBack, onStartJob }: StaffApp
         
         {/* 2. TIME HERO */}
         <div className="text-center py-2">
-            <h2 className="text-4xl font-bold tracking-tight mb-1">{MOCK_DATA.timeRange.split(' - ')[0]}</h2>
+            <h2 className="text-4xl font-bold tracking-tight mb-1">{CURRENT_APPOINTMENT.timeRange.split(' - ')[0]}</h2>
             <p className="text-slate-400 text-sm font-medium">
-                - {MOCK_DATA.timeRange.split(' - ')[1]}
+                - {CURRENT_APPOINTMENT.timeRange.split(' - ')[1]}
             </p>
-            <p className="text-[#8B31FF] font-bold text-xs uppercase tracking-widest mt-2">{MOCK_DATA.date}</p>
+            <p className="text-[#8B31FF] font-bold text-xs uppercase tracking-widest mt-2">{CURRENT_APPOINTMENT.date}</p>
         </div>
 
         {/* 3. CLIENT CARD */}
@@ -104,17 +53,17 @@ export default function StaffAppointmentDetails({ onBack, onStartJob }: StaffApp
 
             <div className="relative z-10 flex items-center gap-4 mb-6">
                 <div className="relative">
-                    <img src={MOCK_DATA.client.image} alt="Client" className="w-16 h-16 rounded-full object-cover border-2 border-[#1C1F26]" />
-                    {MOCK_DATA.client.isVIP && (
+                    <img src={CURRENT_APPOINTMENT.client.image} alt="Client" className="w-16 h-16 rounded-full object-cover border-2 border-[#1C1F26]" />
+                    {CURRENT_APPOINTMENT.client.isVIP && (
                         <span className="absolute -bottom-1 -right-1 bg-gradient-to-r from-blue-500 to-purple-500 text-white text-[10px] font-bold px-1.5 py-0.5 rounded-md shadow-sm">
                             VIP
                         </span>
                     )}
                 </div>
                 <div>
-                    <h3 className="text-xl font-bold text-white">{MOCK_DATA.client.name}</h3>
+                    <h3 className="text-xl font-bold text-white">{CURRENT_APPOINTMENT.client.name}</h3>
                     <div className="flex items-center gap-1 text-slate-400 text-xs">
-                        <MapPin size={12} /> {MOCK_DATA.client.type}
+                        <MapPin size={12} /> {CURRENT_APPOINTMENT.client.type}
                     </div>
                 </div>
             </div>
@@ -139,11 +88,11 @@ export default function StaffAppointmentDetails({ onBack, onStartJob }: StaffApp
                         <Shield size={18} />
                     </div>
                     <div>
-                        <h4 className="font-bold text-white text-sm">{MOCK_DATA.service.name}</h4>
-                        <p className="text-xs text-slate-500">{MOCK_DATA.service.duration}</p>
+                        <h4 className="font-bold text-white text-sm">{CURRENT_APPOINTMENT.service.name}</h4>
+                        <p className="text-xs text-slate-500">{CURRENT_APPOINTMENT.service.duration}</p>
                     </div>
                 </div>
-                <span className="text-lg font-bold text-white">${MOCK_DATA.service.price}</span>
+                <span className="text-lg font-bold text-white">${CURRENT_APPOINTMENT.service.price}</span>
             </div>
         </div>
 
@@ -178,15 +127,15 @@ export default function StaffAppointmentDetails({ onBack, onStartJob }: StaffApp
                             <MapPin size={16} className="text-cyan-400" />
                         </div>
                         <div>
-                            <h4 className="font-bold text-white text-sm leading-tight">{MOCK_DATA.location.address}</h4>
-                            <p className="text-xs text-slate-400 mt-1">{MOCK_DATA.location.city}</p>
+                            <h4 className="font-bold text-white text-sm leading-tight">{CURRENT_APPOINTMENT.location.address}</h4>
+                            <p className="text-xs text-slate-400 mt-1">{CURRENT_APPOINTMENT.location.city}</p>
                         </div>
                     </div>
 
-                    {MOCK_DATA.location.gateCode && (
+                    {CURRENT_APPOINTMENT.location.gateCode && (
                         <div className="inline-block bg-[#00D4FF]/10 border border-[#00D4FF]/20 px-3 py-1.5 rounded-lg">
                             <span className="text-[10px] text-cyan-300 font-bold uppercase tracking-wider">
-                                Gate Code: <span className="text-white ml-1 text-xs">{MOCK_DATA.location.gateCode}</span>
+                                Gate Code: <span className="text-white ml-1 text-xs">{CURRENT_APPOINTMENT.location.gateCode}</span>
                             </span>
                         </div>
                     )}
@@ -195,13 +144,13 @@ export default function StaffAppointmentDetails({ onBack, onStartJob }: StaffApp
         </div>
 
         {/* 6. MEDICAL ALERT */}
-        {MOCK_DATA.medicalAlert && (
+        {CURRENT_APPOINTMENT.medicalAlert && (
             <div className="bg-red-500/10 border border-red-500/20 rounded-2xl p-4 flex gap-3">
                 <AlertCircle size={20} className="text-red-400 shrink-0" />
                 <div>
                     <h4 className="text-xs font-bold text-red-400 uppercase mb-1">Medical Alert</h4>
                     <p className="text-xs text-slate-300 leading-relaxed">
-                        {MOCK_DATA.medicalAlert}
+                        {CURRENT_APPOINTMENT.medicalAlert}
                     </p>
                 </div>
             </div>
