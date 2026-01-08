@@ -1,5 +1,4 @@
 import React, { useState } from 'react';
-// 1. MEJORA: Usamos useNavigate directamente para evitar "Prop Drilling"
 import { useNavigate } from 'react-router-dom'; 
 import { 
   Bell, MoreHorizontal, MapPin, Navigation, Plus, 
@@ -7,46 +6,56 @@ import {
   Shield 
 } from 'lucide-react';
 import { StaffBottomNav } from '../components/StaffBottomNav';
-import { ScheduleItem } from '../types'; // Importamos la interfaz compartida
-import { STAFF_SCHEDULE } from '../data/mocks'; // Importamos los datos
 
-// 2. MEJORA: Definición estricta de rutas internas del dashboard
-// Esto evita errores de dedo al escribir las rutas
+// 1. IMPORTACIONES CENTRALIZADAS
+import { ScheduleItem } from '../types';
+import { STAFF_SCHEDULE } from '../data/mocks';
+
+// Definición estricta de rutas internas
 type DashboardRoute = '/staff-appointment' | '/staff-emergency' | '/';
 
 interface StaffDashboardProps {
   onLogout: () => void;
-  // 3. MEJORA: Ya no necesitamos recibir onNavigate desde App.tsx
-  // onNavigate: (screen: any) => void; <--- ELIMINADO POR OBSOLETO
 }
 
 export default function StaffDashboard({ onLogout }: StaffDashboardProps) {
   const [selectedDate, setSelectedDate] = useState(14); 
   const navigate = useNavigate(); // Hook de navegación
 
-  // Función auxiliar segura para navegar
+  // Función auxiliar segura para navegar dentro del dashboard
   const handleInternalNav = (route: DashboardRoute) => {
     navigate(route);
   };
 
-  // Lógica para la barra de navegación inferior
+  // 2. LÓGICA DE NAVEGACIÓN INFERIOR (ACTUALIZADA)
   const handleBottomNav = (tab: 'agenda' | 'clients' | 'earnings' | 'profile') => {
-    // Aquí definirías las rutas reales para cada tab
     switch (tab) {
-      case 'agenda': navigate('/staff-dashboard'); break;
-      // case 'clients': navigate('/staff-clients'); break;
-      // case 'profile': navigate('/staff-profile'); break;
-      default: console.log("Navegación a:", tab);
+      case 'agenda': 
+        // Ya estamos en la agenda
+        break;
+      case 'clients': 
+        // ¡CONECTADO! Navega a la pantalla de Clientes
+        navigate('/staff-clients'); 
+        break;
+      case 'earnings': 
+        // ¡CONECTADO! Navega a la pantalla de Ganancias
+        navigate('/staff-earnings'); 
+        break;
+      case 'profile': 
+        // ¡CONECTADO! Navega a la pantalla de Perfil
+        navigate('/staff-profile'); 
+        break;
     }
   };
 
+  // Renderizador de tarjetas
   const renderCard = (item: ScheduleItem) => {
     switch (item.type) {
       case 'appointment':
         const isVIP = item.isVIP;
         return (
           <div 
-             // 4. USO: Navegación directa y tipada
+             // Al hacer clic en una cita a domicilio, vamos al detalle
              onClick={() => item.locationType === 'Home Visit' && handleInternalNav('/staff-appointment')}
              className={`relative p-4 rounded-3xl transition-all cursor-pointer active:scale-[0.98] ${
              isVIP 
@@ -152,7 +161,7 @@ export default function StaffDashboard({ onLogout }: StaffDashboardProps) {
                  </div>
              </div>
              
-             {/* --- BOTONES DE ACCIÓN --- */}
+             {/* BOTONES DE ACCIÓN */}
              <div className="flex gap-2">
                  <button 
                     onClick={() => handleInternalNav('/staff-emergency')} 
